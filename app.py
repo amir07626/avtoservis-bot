@@ -7,8 +7,8 @@ from aiogram.utils.executor import set_webhook
 
 app = Flask(__name__)
 
-BOT_TOKEN = os.environ.get("8962135280:AAGZIghAkTJAjXpkxNbGQxHbZ-4yjW3ndoc")
-ADMIN_ID = int(os.environ.get("6224033630", 6224033630))
+BOT_TOKEN = "8962135280:AAGZIghAkTJAjXpkxNbGQxHbZ-4yjW3ndoc"
+ADMIN_ID = int(os.environ.get("ADMIN_ID", 6224033630))
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
