@@ -6,7 +6,7 @@ import asyncio
 
 app = Flask(__name__)
 
-BOT_TOKEN = "8962135280:AAGZIghAkTJAjXpkxNbGQxHbZ-4yjW3ndoc"
+BOT_TOKEN = "8962135280:AAHjqD7dxNLZossVjI4qtoYnftbOhZ49XzY"
 ADMIN_IDS = [6224033630, 616529579]  # ❗ AZIM_PRO ID sini qo'shing
 
 bot = Bot(token=BOT_TOKEN)
