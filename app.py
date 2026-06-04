@@ -1,27 +1,20 @@
 import os
-import time
 from flask import Flask, request, jsonify
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-import asyncio
 
-# Flask ilovasi
 app = Flask(__name__)
 
-# ============ SOZLAMALAR ============
 BOT_TOKEN = "8962135280:AAHQ_1r6LQzjZe5gDUg6CrqXeRSMbhe3Ork"
-ADMIN_IDS = [6224033630, 616529579]  # Siz va Azim_pro
+ADMIN_IDS = [6224033630, 616529579]
 
-# Bot va Dispatcher
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
-# Holatlar
 waiting_for_media = {}
 waiting_for_phone = {}
 notified_users = set()
 
-# ============ MENYU ============
 menu = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 menu.add(
     KeyboardButton("✨ Polirovka"),
@@ -31,7 +24,6 @@ menu.add(
     KeyboardButton("📞 Bog'lanish")
 )
 
-# ============ START ============
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     await message.answer(
@@ -40,51 +32,34 @@ async def start(message: types.Message):
         reply_markup=menu
     )
 
-# ============ POLIROVKA ============
 @dp.message_handler(text="✨ Polirovka")
 async def polishing(message: types.Message):
     await message.answer(
-        "✨ *Polirovka narxlari:*\n\n"
-        "• Mashina holatiga qarab — 1 000 000 so'mdan boshlanadi\n"
-        "• Qora rang — qimmatroq\n"
-        "• Oq rang — nisbatan arzonroq\n\n"
-        "📞 Aniq narx uchun biz bilan bog'laning!",
+        "✨ *Polirovka narxlari:*\n\n• Mashina holatiga qarab — 1 000 000 so'mdan boshlanadi\n• Qora rang — qimmatroq\n• Oq rang — nisbatan arzonroq\n\n📞 Aniq narx uchun biz bilan bog'laning!",
         parse_mode="Markdown"
     )
 
-# ============ BAMPER ============
 @dp.message_handler(text="🔄 Bamper almashtirish")
 async def bumper(message: types.Message):
     await message.answer(
-        "🔧 *Bamper almashtirish:*\n\n"
-        "• Old bamper — 150 000 so'mdan\n"
-        "• Orqa bamper — 150 000 so'mdan",
+        "🔧 *Bamper almashtirish:*\n\n• Old bamper — 150 000 so'mdan\n• Orqa bamper — 150 000 so'mdan",
         parse_mode="Markdown"
     )
 
-# ============ SHUMOIZOLYATSIYA ============
 @dp.message_handler(text="🔇 Shumoizolyatsiya")
 async def shumo(message: types.Message):
     await message.answer(
-        "🔇 *Shumoizolyatsiya narxlari:*\n\n"
-        "• Eshiklar — 500 000 - 1 500 000 so'm\n"
-        "• Pol va bagaj — 2 000 000 - 4 000 000 so'm\n"
-        "• To'liq salon — 3 500 000 - 5 500 000 so'm",
+        "🔇 *Shumoizolyatsiya narxlari:*\n\n• Eshiklar — 500 000 - 1 500 000 so'm\n• Pol va bagaj — 2 000 000 - 4 000 000 so'm\n• To'liq salon — 3 500 000 - 5 500 000 so'm",
         parse_mode="Markdown"
     )
 
-# ============ BOG'LANISH ============
 @dp.message_handler(text="📞 Bog'lanish")
 async def contact(message: types.Message):
     await message.answer(
-        "📞 *Bog'lanish ma'lumotlari:*\n\n"
-        "📍 Manzil: ул. Рудакий 152, Toshkent\n"
-        "📱 Telefon: +998 91 547 70 99\n"
-        "🕐 Ish vaqti: 09:00 - 19:00",
+        "📞 *Bog'lanish ma'lumotlari:*\n\n📍 Manzil: ул. Рудакий 152, Toshkent\n📱 Telefon: +998 91 547 70 99\n🕐 Ish vaqti: 09:00 - 19:00",
         parse_mode="Markdown"
     )
 
-# ============ URIB OLGAN MAN ============
 @dp.message_handler(text="🩸 Urib olgan man")
 async def urib_olgan(message: types.Message):
     user_id = message.from_user.id
@@ -95,7 +70,6 @@ async def urib_olgan(message: types.Message):
         reply_markup=ReplyKeyboardRemove()
     )
 
-# ============ MEDIA QABUL QILISH ============
 @dp.message_handler(content_types=['photo', 'video'])
 async def handle_media(message: types.Message):
     user_id = message.from_user.id
@@ -104,12 +78,10 @@ async def handle_media(message: types.Message):
             media = message.photo[-1]
             media_type = "Rasm"
             file_id = media.file_id
-        elif message.video:
+        else:
             media = message.video
             media_type = "Video"
             file_id = media.file_id
-        else:
-            return
         
         waiting_for_media[user_id] = False
         waiting_for_phone[user_id] = {"file_id": file_id, "type": media_type}
@@ -123,7 +95,6 @@ async def handle_media(message: types.Message):
     else:
         await message.answer("❌ Avval 'Urib olgan man' tugmasini bosing!")
 
-# ============ TELEFON VA ADMIN ============
 @dp.message_handler(content_types=['contact'])
 async def handle_contact(message: types.Message):
     user_id = message.from_user.id
@@ -169,7 +140,6 @@ async def handle_contact(message: types.Message):
     else:
         await message.answer("❌ Avval 'Urib olgan man' tugmasini bosing!")
 
-# ============ XATO ============
 @dp.message_handler()
 async def unknown(message: types.Message):
     user_id = message.from_user.id
@@ -178,9 +148,10 @@ async def unknown(message: types.Message):
     else:
         await message.answer("❌ Tugmalardan birini tanlang!", reply_markup=menu)
 
-# ============ WEBHOOK ============
-@app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
+@app.route(f"/webhook/{BOT_TOKEN}", methods=["POST", "GET"])
 async def webhook():
+    if request.method == "GET":
+        return "Webhook is active", 200
     update = types.Update.to_object(await request.get_json())
     await dp.process_update(update)
     return jsonify({"status": "ok"}), 200
@@ -189,7 +160,6 @@ async def webhook():
 def health():
     return "OK", 200
 
-# ============ ISHGA TUSHIRISH ============
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
