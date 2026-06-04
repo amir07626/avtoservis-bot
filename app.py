@@ -1,23 +1,27 @@
 import os
+import time
 from flask import Flask, request, jsonify
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import asyncio
 
+# Flask ilovasi
 app = Flask(__name__)
 
+# ============ SOZLAMALAR ============
 BOT_TOKEN = "8962135280:AAHQ_1r6LQzjZe5gDUg6CrqXeRSMbhe3Ork"
-ADMIN_IDS = [6224033630, 616529579]  # ❗ AZIM_PRO ID sini qo'shing
+ADMIN_IDS = [6224033630, 616529579]  # Siz va Azim_pro
 
+# Bot va Dispatcher
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
-# Kutilayotgan holatlar
-waiting_for_media = {}   # rasm yoki video
+# Holatlar
+waiting_for_media = {}
 waiting_for_phone = {}
-notified_users = set()   # esemes yuborilgan mijozlar
+notified_users = set()
 
-# ============ MENYU (YANGI) ============
+# ============ MENYU ============
 menu = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 menu.add(
     KeyboardButton("✨ Polirovka"),
@@ -54,8 +58,7 @@ async def bumper(message: types.Message):
     await message.answer(
         "🔧 *Bamper almashtirish:*\n\n"
         "• Old bamper — 150 000 so'mdan\n"
-        "• Orqa bamper — 150 000 so'mdan\n\n"
-        "🚗 Mashina modeliga qarab narx o'zgarishi mumkin.",
+        "• Orqa bamper — 150 000 so'mdan",
         parse_mode="Markdown"
     )
 
@@ -81,7 +84,7 @@ async def contact(message: types.Message):
         parse_mode="Markdown"
     )
 
-# ============ URIB OLGAN MAN (RASM YOKI VIDEO) ============
+# ============ URIB OLGAN MAN ============
 @dp.message_handler(text="🩸 Urib olgan man")
 async def urib_olgan(message: types.Message):
     user_id = message.from_user.id
@@ -92,18 +95,18 @@ async def urib_olgan(message: types.Message):
         reply_markup=ReplyKeyboardRemove()
     )
 
-# ============ MEDIA QABUL QILISH (RASM YOKI VIDEO) ============
+# ============ MEDIA QABUL QILISH ============
 @dp.message_handler(content_types=['photo', 'video'])
 async def handle_media(message: types.Message):
     user_id = message.from_user.id
     if waiting_for_media.get(user_id):
         if message.photo:
             media = message.photo[-1]
-            media_type = "🖼️ Rasm"
+            media_type = "Rasm"
             file_id = media.file_id
         elif message.video:
             media = message.video
-            media_type = "🎥 Video"
+            media_type = "Video"
             file_id = media.file_id
         else:
             return
@@ -120,7 +123,7 @@ async def handle_media(message: types.Message):
     else:
         await message.answer("❌ Avval 'Urib olgan man' tugmasini bosing!")
 
-# ============ TELEFON VA ADMINGA YUBORISH ============
+# ============ TELEFON VA ADMIN ============
 @dp.message_handler(content_types=['contact'])
 async def handle_contact(message: types.Message):
     user_id = message.from_user.id
@@ -132,10 +135,9 @@ async def handle_contact(message: types.Message):
         username = message.from_user.username or "Yo'q"
         full_name = message.from_user.full_name
         
-        # IKKALA ADMINGA YUBORAMIZ
         for admin_id in ADMIN_IDS:
             try:
-                if "Rasm" in media_type:
+                if media_type == "Rasm":
                     await bot.send_photo(
                         chat_id=admin_id,
                         photo=file_id,
@@ -150,20 +152,16 @@ async def handle_contact(message: types.Message):
             except:
                 pass
         
-        # FAQAT BIRINCHI MARTA ESEMES KELADI
         if user_id not in notified_users:
             await message.answer(
-                "✅ *Yangi mijoz!*\n"
-                "Ma'lumotlaringiz adminga yuborildi.\n"
-                "Admin ko'rib chiqguncha boshqa xabar kelmaydi.",
+                "✅ *Yangi mijoz!*\nMa'lumotlaringiz adminga yuborildi.\nAdmin ko'rib chiqguncha boshqa xabar kelmaydi.",
                 parse_mode="Markdown",
                 reply_markup=menu
             )
             notified_users.add(user_id)
         else:
             await message.answer(
-                "✅ Ma'lumotlaringiz adminga yuborildi.\n"
-                "Admin tez orada siz bilan bog'lanadi.",
+                "✅ Ma'lumotlaringiz adminga yuborildi.\nAdmin tez orada siz bilan bog'lanadi.",
                 reply_markup=menu
             )
         
@@ -171,7 +169,7 @@ async def handle_contact(message: types.Message):
     else:
         await message.answer("❌ Avval 'Urib olgan man' tugmasini bosing!")
 
-# ============ XATO XABAR ============
+# ============ XATO ============
 @dp.message_handler()
 async def unknown(message: types.Message):
     user_id = message.from_user.id
@@ -180,17 +178,18 @@ async def unknown(message: types.Message):
     else:
         await message.answer("❌ Tugmalardan birini tanlang!", reply_markup=menu)
 
-# ============ FLASK ============
+# ============ WEBHOOK ============
 @app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
 async def webhook():
     update = types.Update.to_object(await request.get_json())
     await dp.process_update(update)
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok"}), 200
 
 @app.route("/health")
 def health():
     return "OK", 200
 
+# ============ ISHGA TUSHIRISH ============
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
