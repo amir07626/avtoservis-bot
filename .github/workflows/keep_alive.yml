@@ -1,0 +1,16 @@
+name: Botni uyg‘oq saqlash
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Botni ping qilish
+        run: |
+          echo "🏓 Botni uyg‘otish..."
+          curl -I https://avtoservis-bot.onrender.com/health
+          echo "✅ Ping yuborildi!"
